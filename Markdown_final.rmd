@@ -1,0 +1,1026 @@
+
+---
+title: "¿Qué factores explican el nivel de violencia criminal  en el Perú a nivel provincial?"
+author: "Rosario Ramos"
+date: "11/07/2019"
+output: html_document
+---
+
+## Estadística para el análisis político 2 - POL304 <br> 
+ 
+____
+## **¿Qué factores explican el nivel de violencia criminal  en el Perú a nivel provincial ? **
+____
+
+<a id='beginning'></a>
+
+I.  __Índice __
+
+    * [1.Carga de datos](#Carga)
+    * [2.Limpieza de bases de datos](#Limpieza)
+    * [3.Descripción de datos](#Descripcion)
+    * [4.Aplicación del merge](#Merge)
+    * [5.Análisis de Cluster](#Cluster) 
+    * [6.Análisis de regresión BETA](#regresion)
+
+#### **1.Carga de datos**
+
+<a id='Apertura'></a> 
+
+##### *A.Variable dependiente: Nivel de violencia*
+
+```{r}
+#Delitos violentos - data de denuncias de delitos
+
+link="https://docs.google.com/spreadsheets/d/e/2PACX-1vSKAxtMj_Ouu-0HSZGHzoipTyKMvkFF0fzH1wZSRREx-cHxPlQD9KFYxSzk57pQ7v59svo5eWunashY/pub?gid=1508201022&single=true&output=csv"
+
+
+delitos=read.csv(link,stringsAsFactors = F)
+
+head(delitos)
+```
+
+##### *A.1. Número de la población*
+
+```{r}
+linkpob="https://docs.google.com/spreadsheets/d/e/2PACX-1vRfWcXdwZ8YaB-xSI1QXWxdV5BSgEyhSsCMF6YGk9yKFHVabhqTQ06XpariQqaGWg/pub?gid=1805444984&single=true&output=csv"
+
+
+pob=read.csv(linkpob,stringsAsFactors = F)
+```
+
+
+##### *B.Variable independiente: Indice de densidad estatal*
+
+###### *B.1. Indice de densidad estatal: Afiliación al Seguro Integral de Salud*
+
+```{r}
+linksis="https://docs.google.com/spreadsheets/d/e/2PACX-1vTqqdq5CYlcBUxpBQMVZH0aXSLDl8Ig-Jdz0Gszr4nzsEtH3RFOYOtk2sRdx3DRNQ/pub?gid=1089227090&single=true&output=csv"
+
+
+sis=read.csv(linksis, stringsAsFactors = F)
+```
+
+###### *B.2. Indice de densidad estatal: Electrificación*
+
+```{r}
+linkelec="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRGFS8xVZDGkEJopQfEK-xamFs-BulTtZXGoBsN4Q7FgchRCiNV0oHP3VPEdB9AQ/pub?gid=1753108945&single=true&output=csv"
+
+elec=read.csv(linkelec,stringsAsFactors = F)
+```
+
+###### *B.3. Indice de densidad estatal: Población con agua y desague*
+
+```{r}
+linkagua="https://docs.google.com/spreadsheets/d/e/2PACX-1vRMVJlbR-iiPM4sqcZZyMKF3pkrwc5FvyBDDv9zXtTqWH7YNmCDSWO94R0S9DZBtA/pub?gid=1744623752&single=true&output=csv"
+
+agua_desague=read.csv(linkagua,stringsAsFactors = F)
+```
+
+###### *B.4. Indice de densidad estatal: Población con partida de nacimiento o DNI*
+
+```{r}
+linkdninac="https://docs.google.com/spreadsheets/d/e/2PACX-1vQv45ijqD1hQ6aKH79bOb4fViwm51gs-x1tpFqykLXHdsHrLAS6AxOR5fEdb515tg/pub?gid=92723149&single=true&output=csv"
+
+dni_nac=read.csv(linkdninac,stringsAsFactors = F)
+```
+
+###### *B.5. Indice de densidad estatal: Número de población que asiste a secundaria*
+
+```{r}
+linksec="https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0GDUcKcnNqlfeEbW7lNJ4gwlkYDTJQPXJ90EcR3VVY_HL2yc7RS-OWTOUg-AaCA/pub?gid=1319487621&single=true&output=csv"
+
+
+matricula_sec=read.csv(linksec,stringsAsFactors = F)
+```
+
+##### *C.Variable independiente: Corrupción*
+
+```{r}
+linkc="https://docs.google.com/spreadsheets/d/e/2PACX-1vQV6I2OvQ3MDIQi9LguKUHgj8nENDZDxtIcQJXTlkKL1cgC1kHJo5kBXi0DYLy9nWd0FaZo77L8N-xS/pub?gid=288559907&single=true&output=csv"
+
+
+corrupcion=read.csv(linkc,stringsAsFactors = F)
+```
+
+##### *D.Variable independiente: Inversión en orden público y seguridad*
+```{r}
+linkprov="https://docs.google.com/spreadsheets/d/e/2PACX-1vRY0oN9Rtc4bqlrirCsv_bIXOOJ4A66KYqpsgLhsI43Q5jGNiuKqS-k6QRcOssRMw/pub?gid=1851878652&single=true&output=csv"
+
+
+presupuesto=read.csv(linkprov,stringsAsFactors = F)
+```
+
+##### *E.Variable control: Indice de Desarrollo Humano*
+```{r}
+url6="https://docs.google.com/spreadsheets/d/e/2PACX-1vSRVUF3HlckKLYCALF2C5bkeHYuLSKFSBuJGEfy8Q9mtv8MBYWxjDQ7fcE0W5XdDw/pub?gid=477186794&single=true&output=csv"
+
+
+idhperu=read.csv(url6, stringsAsFactors = F)
+```
+
+
+##### *Regiones*
+
+```{r}
+linkregion="https://docs.google.com/spreadsheets/d/e/2PACX-1vRfWcXdwZ8YaB-xSI1QXWxdV5BSgEyhSsCMF6YGk9yKFHVabhqTQ06XpariQqaGWg/pub?gid=1805444984&single=true&output=csv"
+
+
+region=read.csv(linkregion,stringsAsFactors = F)
+```
+
+
+#### **2.Limpieza de la base de datos**
+
+<a id='Limpieza'></a> 
+
+##### *A.1. Variable dependiente: Nivel de violencia-Homicidio*
+
+```{r}
+homicidio=delitos
+
+homicidio=homicidio[,c(1,3,8)]
+
+names(homicidio)=c("ubigeo","Provincia","Tipo_crimen")
+
+homicidio=homicidio[-grep("TENTATIVA DE HOMICIDIO",homicidio$Tipo_crimen),]
+homicidio=homicidio[grep("HOMICIDIO",homicidio$Tipo_crimen),]
+
+thomi=table(homicidio$Provincia)
+homicidio=as.data.frame(thomi)
+
+names(homicidio)= c("Provincia","Homicidio")
+
+head(homicidio)
+```
+
+##### *A.2. Variable dependiente: Nivel de violencia-Lesiones*
+
+```{r}
+lesiones=delitos
+
+lesiones1=lesiones[,c(1,3,8,9)]
+names(lesiones1)=c("ubigeo","Provincia","Tipo_crimen","Modalidad")
+lesiones1=lesiones1[grep("LESIONES",lesiones1$Tipo_crimen),]
+tles1=table(lesiones1$Provincia)
+lesiones1=as.data.frame(tles1)
+names(lesiones1)=c("Provincia","Lesiones")
+
+
+lesiones2=lesiones[,c(1,3,8,9)]
+names(lesiones2)=c("ubigeo","Provincia","Tipo_crimen","Modalidad")
+lesiones2=lesiones2[grep("LESIONES GRAVES SEGUIDAS DE MUERTE",lesiones2$Modalidad),]
+tles2=table(lesiones2$Provincia)
+lesiones2=as.data.frame(tles2)
+names(lesiones2)=c("Provincia","Lesiones2")
+
+t_lesiones=merge(lesiones1,lesiones2,all.x=T,all.y=T)
+
+t_lesiones[is.na(t_lesiones)]=0
+
+t_lesiones$total_lesiones=rowSums(t_lesiones[,c(2:3)])
+
+t_lesiones$Lesiones=NULL
+t_lesiones$Lesiones2=NULL
+
+head(t_lesiones)
+```
+
+##### *A.3. Variable dependiente: Nivel de violencia-Tentativa de homicidio*
+
+```{r}
+int_homi=delitos
+int_homi=int_homi[,c(1,3,8)]
+
+names(int_homi)=c("ubigeo","Provincia","Tipo_crimen")
+int_homi=int_homi[grep("TENTATIVA DE HOMICIDIO",int_homi$Tipo_crimen),]
+
+tint_homi=table(int_homi$Provincia)
+int_homi=as.data.frame(tint_homi)
+
+names(int_homi)=c("Provincia","Tentativa_homicidio")
+
+head(int_homi)
+```
+
+##### *A.4. Variable dependiente: Nivel de violencia-Robo*
+
+```{r}
+robo=delitos
+
+robo1=robo[,c(1,3,8,9)]
+names(robo1)=c("ubigeo","Provincia","Tipo_crimen","Modalidad")
+robo1=robo1[grep("ROBO",robo1$Tipo_crimen),]
+trobo1=table(robo1$Provincia)
+robo1=as.data.frame(trobo1)
+names(robo1)=c("Provincia","Robo1")
+
+
+robo2=robo[,c(1,3,8,9)]
+names(robo2)=c("ubigeo","Provincia","Tipo_crimen","Modalidad")
+robo2=robo2[grep("ROBO AGRAVADO CON SUBSECUENTE MUERTE",robo2$Modalidad),]
+trobo2=table(robo2$Provincia)
+robo2=as.data.frame(trobo2)
+names(robo2)=c("Provincia","Robo2")
+
+t_robo=merge(robo1,robo2,all.x=T,all.y=T)
+
+t_robo[is.na(t_robo)]=0
+
+t_robo$total_robo=rowSums(t_robo[,c(2:3)])
+
+t_robo$Robo1=NULL
+t_robo$Robo2=NULL
+
+head(t_robo)
+```
+
+##### *A.5. Variable dependiente: Nivel de violencia-Extorsión*
+
+```{r}
+extorsion=delitos
+
+
+extorsion=extorsion[,c(1,3,8)]
+names(extorsion)=c("ubigeo","Provincia","Tipo_crimen")
+extorsion=extorsion[grep("EXTORSION",extorsion$Tipo_crimen),]
+textor=table(extorsion$Provincia)
+extorsion=as.data.frame(textor)
+
+names(extorsion)=c("Provincia","Extorsion")
+
+head(extorsion)
+```
+
+##### *Variable dependiente: Merge, porcentaje de denuncias*
+
+```{r}
+denuncias1=merge(homicidio,t_lesiones,all.x=T,all.y=T)
+denuncias2=merge(int_homi,t_robo,all.x=T,all.y=T)
+denuncias3=merge(denuncias1,extorsion,all.x=T,all.y=T)
+denuncias=merge(denuncias3,denuncias2,all.x=T,all.y=T)
+
+
+denuncias[is.na(denuncias)]=0
+denuncias$Provincia=iconv(denuncias$Provincia,to="ASCII//TRANSLIT")
+
+denuncias$scoredenun=rowSums(denuncias[,c(2:6)])
+
+
+#limpieza - población
+
+pob=pob[,c(4,7)]
+
+names(pob)=c("Provincia","Poblacion")
+
+pob$Provincia=iconv(pob$Provincia,to="ASCII//TRANSLIT")
+library(dplyr)
+pob=mutate_all(pob, funs(toupper))
+
+pob[101,1]="NAZCA"
+
+pob$Poblacion=as.numeric(pob$Poblacion)
+
+
+#merge: denuncia y poblacion
+
+denuncias=merge(denuncias,pob,by="Provincia")
+
+denuncias$por_scoredenun=(denuncias$scoredenun/denuncias$Poblacion)*100
+denuncias$por_homicidio=(denuncias$Homicidio/denuncias$Poblacion)*100
+denuncias$por_lesiones=(denuncias$total_lesiones/denuncias$Poblacion)*100
+denuncias$por_extorsion=(denuncias$Extorsion/denuncias$Poblacion)*100
+denuncias$por_tentativa_homi=(denuncias$Tentativa_homicidio/denuncias$Poblacion)*100
+denuncias$por_robo=(denuncias$total_robo/denuncias$Poblacion)*100
+
+denuncias$Violencia=denuncias$por_scoredenun/100
+
+denuncias$Homicidio=NULL
+denuncias$total_lesiones=NULL
+denuncias$Extorsion=NULL
+denuncias$Tentativa_homicidio=NULL
+denuncias$total_robo=NULL
+denuncias$scoredenun=NULL
+
+```
+
+##### *B.Variable independiente: Indice de densidad estatal*
+
+###### *B.1. Indice de densidad estatal: Afiliación al Seguro Integral de Salud*
+
+```{r}
+sis=sis[,c(3,7)]
+
+names(sis)=c("Provincia","Afiliado_SIS")
+
+sis=sis[-c(197:200),]
+
+library(tidyr)
+sis= separate(sis, Provincia, into = c("delete","Provincia"),": ")
+
+sis[67,2]="Provincia constitucional del Callao"
+sis[146,2]="Tambopata"
+sis[147,2]="Manu"
+sis[148,2]="Tahuamanu"
+
+sis$delete=NULL
+
+sis$Afiliado_SIS=trimws(sis$Afiliado_SIS,whitespace = "[\\h\\v]")
+
+library(dplyr)
+sis=mutate_all(sis, funs(toupper))
+sis$Provincia=iconv(sis$Provincia,to="ASCII//TRANSLIT")
+
+sis$Afiliado_SIS=gsub(" ","", sis$Afiliado_SIS)
+sis$Afiliado_SIS=as.numeric(sis$Afiliado_SIS)
+```
+
+###### *B.2. Indice de densidad estatal: Electrificación*
+
+```{r}
+linkelec="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRGFS8xVZDGkEJopQfEK-xamFs-BulTtZXGoBsN4Q7FgchRCiNV0oHP3VPEdB9AQ/pub?gid=1753108945&single=true&output=csv"
+
+elec=read.csv(linkelec,stringsAsFactors = F)
+
+elec=elec[c(3,6)]
+
+names(elec)=c("Provincia","Electrificacion")
+
+
+elec=elec[-c(197:200),]
+elec= separate(elec, Provincia, into = c("delete","Provincia"),": ")
+
+elec[67,2]="Provincia constitucional del Callao"
+elec[146,2]="Tambopata"
+elec[147,2]="Manu"
+elec[148,2]="Tahuamanu"
+
+elec$delete=NULL
+
+elec$Electrificacion=trimws(elec$Electrificacion,whitespace = "[\\h\\v]")
+
+elec=mutate_all(elec, funs(toupper))
+elec$Provincia=iconv(elec$Provincia,to="ASCII//TRANSLIT")
+
+elec$Electrificacion=gsub(" ","", elec$Electrificacion)
+
+elec$Electrificacion=as.numeric(elec$Electrificacion)
+
+```
+
+###### *B.3. Indice de densidad estatal: Población con agua y desague*
+
+```{r}
+agua_desague=agua_desague[c(3,6,15)]
+
+agua_desague=agua_desague[-c(197:200),]
+
+names(agua_desague)=c("Provincia","Vivienda_agua","Vivienda_desague")
+
+agua_desague= separate(agua_desague, Provincia, into = c("delete","Provincia"),": ")
+
+agua_desague[67,2]="Provincia constitucional del Callao"
+agua_desague[146,2]="Tambopata"
+agua_desague[147,2]="Manu"
+agua_desague[148,2]="Tahuamanu"
+
+agua_desague$delete=NULL
+
+agua_desague$Vivienda_agua=trimws(agua_desague$Vivienda_agua,whitespace = "[\\h\\v]")
+agua_desague$Vivienda_desague=trimws(agua_desague$Vivienda_desague,whitespace = "[\\h\\v]")
+
+agua_desague$Vivienda_agua=gsub(" ","", agua_desague$Vivienda_agua)
+agua_desague$Vivienda_desague=gsub(" ","", agua_desague$Vivienda_desague)
+
+agua_desague[c(2,3)] = lapply(agua_desague[c(2,3)], as.numeric)
+
+agua_desague$v_ayd=rowSums(agua_desague[,c(2:3)])
+
+agua_desague=agua_desague[c(1,4)]
+
+agua_desague=mutate_all(agua_desague, funs(toupper))
+agua_desague$Provincia=iconv(agua_desague$Provincia,to="ASCII//TRANSLIT")
+```
+
+###### *B.4. Indice de densidad estatal: Población con partida de nacimiento o DNI*
+
+```{r}
+dni_nac=dni_nac[c(3,6,10)]
+
+names(dni_nac)=c("Provincia","Partida_nacimiento","DNI")
+
+dni_nac=dni_nac[-c(197:200),]
+
+
+dni_nac= separate(dni_nac, Provincia, into = c("delete","Provincia"),": ")
+
+dni_nac[67,2]="Provincia constitucional del Callao"
+dni_nac[146,2]="Tambopata"
+dni_nac[147,2]="Manu"
+dni_nac[148,2]="Tahuamanu"
+
+dni_nac$delete=NULL
+
+
+dni_nac$Partida_nacimiento=trimws(dni_nac$Partida_nacimiento,whitespace = "[\\h\\v]")
+dni_nac$DNI=trimws(dni_nac$DNI,whitespace = "[\\h\\v]")
+
+dni_nac$Partida_nacimiento=gsub(" ","", dni_nac$Partida_nacimiento)
+dni_nac$DNI=gsub(" ","", dni_nac$DNI)
+
+dni_nac[c(2,3)] = lapply(dni_nac[c(2,3)], as.numeric)
+
+dni_nac$dni_nac=rowSums(dni_nac[,c(2:3)])
+
+
+dni_nac=dni_nac[c(1,4)]
+
+dni_nac=mutate_all(dni_nac, funs(toupper))
+dni_nac$Provincia=iconv(dni_nac$Provincia,to="ASCII//TRANSLIT")
+```
+
+###### *B.5. Indice de densidad estatal: Número de población que asiste a secundaria*
+
+```{r}
+names(matricula_sec)=c("Provincia","Delete","Secundaria")
+
+matricula_sec=matricula_sec[complete.cases(matricula_sec),]
+matricula_sec$Delete=NULL
+
+row.names(matricula_sec)=NULL
+
+matricula_sec$Secundaria=as.numeric(matricula_sec$Secundaria)
+```
+
+
+```{r}
+#merge: IDE
+
+IDE1=merge(sis, elec,by="Provincia")
+IDE2=merge(agua_desague,dni_nac,by="Provincia")
+IDE3=merge(IDE1,matricula_sec,by="Provincia")
+IDE=merge(IDE3,IDE2, by="Provincia")
+
+IDE=merge(pob,IDE,by="Provincia")
+
+IDE$v_ayd=as.numeric(IDE$v_ayd)
+IDE$dni_nac=as.numeric(IDE$dni_nac)
+
+IDE$Por_afil_sis=(IDE$Afiliado_SIS/IDE$Poblacion)*100
+IDE$Por_elec=(IDE$Electrificacion/IDE$Poblacion)*100
+IDE$Por_sec=(IDE$Secundaria/IDE$Poblacion)*100
+IDE$Por_ayd=(IDE$v_ayd/IDE$Poblacion)*100
+IDE$Por_dninac=(IDE$dni_nac/IDE$Poblacion)*100
+
+
+```
+
+
+##### *C.Variable independiente: Corrupción*
+```{r}
+corrupcion=corrupcion [c(2,6)]
+
+names(corrupcion)=c("Provincia","Corrupcion")
+corrupcion$Provincia=iconv(corrupcion$Provincia,to="ASCII//TRANSLIT")
+
+corrupcion[67,1]="PROVINCIA CONSTITUCIONAL DEL CALLAO"
+corrupcion[47,1]="LA MAR"
+corrupcion[45,1]="HUANCA SANCOS"
+corrupcion[96,1]="PUERTO INCA"
+corrupcion[14,1]="CARLOS FERMIN FITZCARRALD"
+corrupcion[50,1]="PAUCAR DEL SARA SARA"
+corrupcion[42,1]="LA UNION"
+corrupcion[101,1]="NAZCA"
+
+corrupcion$Corrupcion=as.numeric(corrupcion$Corrupcion)
+
+corrupcion$Corrupcion=scale(corrupcion$Corrupcion)
+head(corrupcion)
+```
+
+##### *D.Variable independiente: Inversión en orden público y seguridad*
+
+```{r}
+presupuesto=presupuesto[c(1,12)]
+
+library(tidyr)
+
+presupuesto= separate(presupuesto, Provincia, into = c("delete","Provincia"),": ")
+
+presupuesto$delete=NULL
+
+
+names(presupuesto)=c("Provincia","Gasto_diezmilhab")
+
+
+
+presupuesto$Provincia=iconv(presupuesto$Provincia,to="ASCII//TRANSLIT")
+
+
+presupuesto[67,1]="PROVINCIA CONSTITUCIONAL DEL CALLAO"
+presupuesto[153,1]="DANIEL ALCIDES CARRION"
+presupuesto[10,1]="ANTONIO RAYMONDI"
+presupuesto[141,1]="MARISCAL RAMON CASTILLA"
+presupuesto[32,1]="COTABAMBAS"
+presupuesto[7,1]="UTCUBAMBA"
+presupuesto[79,1]="QUISPICANCHI"
+presupuesto[53,1]="VILCAS HUAMAN"
+
+
+presupuesto$Gasto_diezmilhab =   gsub("\\,", ".", presupuesto$Gasto_diezmilhab)
+
+presupuesto$Gasto_diezmilhab=as.numeric(presupuesto$Gasto_diezmilhab)
+
+presupuesto$Gasto_diezmilhab=scale(presupuesto$Gasto_diezmilhab)
+
+head(presupuesto)
+```
+
+
+##### *E.Variable control: Indice de Desarrollo Humano*
+```{r}
+idhperu=idhperu[c(6,10:14)]
+idhperu=idhperu[-c(152),]
+
+
+row.names(idhperu)=NULL
+idhperu$IDH =   gsub("\\,", ".", idhperu$IDH) 
+idhperu$esperanza= gsub("\\,", ".", idhperu$esperanza)
+idhperu$secundaria= gsub("\\,", ".", idhperu$secundaria)
+idhperu$educa= gsub("\\,", ".", idhperu$educa)
+idhperu$percapitaf= gsub("\\,", ".", idhperu$percapitaf)
+
+
+idhperu[c(2:6)]=lapply(idhperu[c(2:6)], as.numeric)
+names(idhperu)=c("Provincia","IDH","esperanza","secund_completa","tiempo_educa","percapitaf")
+
+idhperu$Provincia=iconv(idhperu$Provincia,to="ASCII//TRANSLIT")
+
+idhperu[67,1]="PROVINCIA CONSTITUCIONAL DEL CALLAO"
+idhperu[100,1]="NAZCA"
+```
+
+
+##### *Regiones*
+```{r}
+region=region[c(4,8)]
+
+library(dplyr)
+region=mutate_all(region, funs(toupper))
+
+region[101,1]="NAZCA"
+
+region$Region=as.factor(region$Region)
+
+head(region)
+
+```
+
+#### **3.Comportamiento de las variables**
+
+<a id='Descripcion'></a> 
+
+#### *A. Variable dependiente. violencia
+
+Haremos un histograma para ver cómo se comporta la variable dependiente: 
+
+```{r}
+hist(denuncias$por_scoredenun)
+```
+Vemos que hay una gran concentración de provincias donde hay un bajo nivel de violencia y mientras más aumenta, se encuentran menores casos. 
+
+
+
+####*Análisis Factorial"
+Se llevará a cabo un análisis factorial de las siguientes variables: Indice de Densidad Estatal e Indice de Desarrollo Humano. Ello se realizará con el objetivo de ver qué tan parecidas son las variables para que cada una genere una dimensión y finalmente crear un puntaje de acuerdo a su correlación. En el caso de IDH, se comparará cuál es el efecto de esta variable con el puntaje del Análisis Factorial y con el calculado por el Programa de Naciones Unidas para el Desarrollo.
+
+
+##### *B.Variable independiente: Indice de densidad estatal*
+
+1. Se cambio la posición de los nombres de las provincias al índice: 
+```{r}
+row.names(IDE)=IDE$Provincia
+IDE$Provincia=NULL
+
+head(IDE)
+```
+
+
+2.- Se estandarizó todas las variables y se convirtió en una data frame para que no aparezca como lista.
+
+```{r}
+IDE_s=as.data.frame(scale(IDE[-c(1:6)]))
+
+head(IDE_s)
+```
+
+
+3.- Pasamos a ver la correlación que existe entre las variables:
+
+```{r}
+library(psych)
+
+pearson=cor(IDE_s)
+
+pearson
+```
+
+4.- Vemos el gráfico de correlación para poner a prueba el Test de Bartlett:
+
+```{r}
+cor.plot(pearson, numbers=T, upper=FALSE, main = "Correlation", show.legend = FALSE)
+```
+
+Efectivamente, la matriz de correlación no es igual a la matriz de identidad. Sin embargo, vemos que hay variables que están aportando negativamente.
+
+
+5.- Veamos qué tan apropiado es juntar las variables:
+
+```{r}
+KMO(IDE_s)
+```
+
+Supera el 0.6, por lo tanto, resulta apropiado juntar las variables. 
+
+
+6.- Veamos cuántas dimensiones son identificadas:
+```{r}
+fa.parallel(pearson, fm="pa", fa="fa", main = "Scree Plot",n.obs = nrow(IDE_s))
+```
+
+Vemos que las variables se han separado y se han generado dos dimensiones. Probemos siguiendo las dos dimensiones para visualizar cuáles son las variables que se juntan:
+
+```{r}
+IDEprueba<- fa(IDE_s,nfactors = 2,rotate="varimax")
+
+IDEprueba$loadings
+```
+Según los loadings, vemos que el porcentaje de personas afiliadas al SIS y el porcentaje de personas que asisten a secundaria  son las variables que se separan del resto. Generando dos dimensiones, el modelo representa el 59.2% de la varianza del total de la información.
+
+
+Veamos el gráfico con las dos dimensiones obtenidas:
+
+```{r}
+fa.diagram(IDEprueba)
+```
+Efectivamente, el porcentaje de personas afiliadas al SIS y el porcentaje de personas que asisten a secundaria son las variables que se alejan del resto. 
+
+
+7.- Ahora llevemos a cabo el análisis factorial solo con una dimensión:
+
+```{r}
+IDE_sF <- fa(IDE_s, 
+                     nfactors=1, 
+                     rotate="varimax")
+
+IDE_sF$loadings
+```
+
+El resultado es que este modelo de una sola dimensión representa el 41.6% de la varianza del total de información. A diferencia del anterior, la representación se reduce en 17.6%. Sin embargo, continuaremos juntando estas variables debido a que nos estamos basando en los indicadores del Programa de Naciones Unidas para el Desarrollo.
+
+
+8.- Ahora veamos cuáles son las variables que más o menos aportan:
+
+```{r}
+sort(IDE_sF$communalities)
+```
+
+La variable que más aporta es el porcentaje de viviendas con agua y desague, mientras que la que menos aporta es el porcentaje de personas con DNI o partida de nacimiento.
+
+
+9.- Veamos el gráfico para ver la vinculación de cada variable:
+
+```{r}
+fa.diagram(IDE_sF)
+```
+Las dos variables iniciales que se separaron están aportando negativamente al modelo. El resto aporta de manera positiva. 
+
+
+10.- Ahora generaré el puntaje para la dimensión de densidad del Estado:
+```{r}
+scores=as.data.frame(IDE_sF$scores)
+names(scores)=c("IDEfa")
+
+head(scores)
+```
+
+11.- Uniré la tabla de IDE a los puntajes generados:
+```{r}
+IDE=merge(IDE,scores,by=0) 
+```
+
+```{r}
+IDE_plus=as.data.frame(cbind(IDE_s,IDE_sF$scores))
+
+IDE_plus$Provincia=row.names(IDE_plus)
+
+row.names(IDE_plus)=NULL
+```
+
+```{r}
+IDE=IDE[c(1,8:13)]
+```
+
+```{r}
+names(IDE)=c("Provincia","Por_afil_sis","Por_elec","Por_sec","Por_ayd","Por_dninac","IDEfa")
+```
+
+
+
+
+##### *E.Variable control: Indice de Desarrollo Humano*
+
+Ahora, pasaré a realizar el análisis factorial del Indice de Desarrollo Humano:
+
+1.- Primero, pasamos las provincias al índice:
+```{r}
+row.names(idhperu)= idhperu$Provincia
+
+idhperu$Provincia=NULL
+
+head(idhperu)
+```
+
+2.- Estandarizamos las variables que ingresarán en el análisis factorial:
+```{r}
+idhperu_s=as.data.frame(scale(idhperu[-c(1)]))
+
+head(idhperu_s)
+```
+
+
+3.- Veamos la correlación de las variables:
+```{r}
+pearson_idh=cor(idhperu_s)
+
+pearson_idh
+```
+
+
+
+4.- Generemos un gráfico de la correlación para poner a prueba el Test de Bartlett:
+```{r}
+cor.plot(pearson_idh, numbers=T, upper=FALSE, main = "Correlation", show.legend = FALSE)
+```
+El resultado es que la matriz de correlación es distinta a la matriz de identidad. Asimismo, se visualiza que hay una alta correlación entre las variables.
+
+
+
+5.- Veamos qué tan apropiado es juntar las variables:
+```{r}
+KMO(idhperu_s)
+```
+
+Supera el 0.6, por tanto, es apropiado juntar las variables.
+
+
+6.- Veamos cuántas dimensiones se generan:
+
+```{r}
+fa.parallel(pearson_idh, fm="pa", fa="fa", main = "Scree Plot",n.obs = nrow(idhperu_s))
+```
+Contrario a lo esperado se generan dos dimensiones, veamos cuáles son los grupos que se forman:
+
+```{r}
+idhprueba=fa(idhperu_s,nfactors = 2,rotate = "varimax")
+
+idhprueba$loadings
+```
+Por un lado,se forma un grupo conformado por Población con educación secundaria completa y total de años de educación en la población de 25 años a más. Por otro lado, se forma otro grupo: esperanza de vida y ingreso familiar per cápita. Haciendo este modelo de dos dimensiones, se representa el 78.1% de la varianza del total de información.
+
+
+7.- Ahora veamos qué es lo que sucede cuando solicitamos una sola dimensión:
+
+```{r}
+idhperu_sF=fa(idhperu_s,nfactors=1,rotate="varimax")
+
+idhperu_sF$loadings
+```
+Vemos que el porcentaje de representación se reduce en 7.5. Sin embargo, nos quedaremos con una sola dimensión porque 1)sigue siendo bastante alto el grado de representación 2)estos indicadores tienen justificación teórica elaborada por el Programa de Naciones Unidas para el Desarrollo.
+
+8.- Veamos cuáles son las variables que más y menos aportan:
+
+```{r}
+sort(idhperu_sF$communalities)
+```
+La que más aporta es el total de años de educación en la población de 25 años a más y la que menos es la esperanza de vida. 
+
+
+9.- Ahora veamos el gráfico para ver la vinculación de cada variable:
+```{r}
+fa.diagram(idhperu_sF)
+```
+Todas las variables aportan positivamente y superan el 0.6, por ello decimos que hay una alta correlación entre las variables.
+
+10.- Ahora generaremos el puntaje del análisis factorial:
+
+```{r}
+scores_idh=as.data.frame(idhperu_sF$scores)
+names(scores_idh)=c("IDHfa")
+
+head(scores_idh)
+```
+
+
+11.- Uniremos el puntaje generado con la tabla del IDH:
+```{r}
+idhperu=merge(idhperu,scores_idh,by=0) 
+```
+
+```{r}
+names(idhperu)=c("Provincia","IDH","Esperanza_vida","secund_completa","tiempo_educa","percapitaf","IDHfa")
+```
+
+
+#### **4.Aplicación del merge**
+
+<a id='Merge'></a> 
+
+```{r}
+total1=merge(denuncias,region,by="Provincia")
+total2=merge(corrupcion, IDE,by="Provincia")
+total3=merge(total1,presupuesto,by="Provincia")
+total4=merge(total2,idhperu,by="Provincia")
+total=merge(total3,total4,by="Provincia")
+```
+
+Pasamos a exportar la base de datos creada:
+
+```{r}
+library(xlsx)
+write.xlsx(total, "total.xlsx")
+```
+
+La base de datos contiene la siguiente información:
+
+* **Población**: Número total de habitantes por provincia
+* **por_scoredenun**: Porcentaje de denuncias totales respecto al total de la población
+* **por_homicidio**:	Porcentaje de homicidios respecto al total de la población
+* **por_lesiones**: Porcentaje de lesiones respecto al total de la población
+* **por_extorsion**:	Porcentaje de extorsiones respecto al total de la población
+* **por_tentativa_homi**:	Porcentaje de tentativas de homicidio respecto al total de la población
+* **por_robo**:	Porcentaje de robos respecto al total de la población
+* **Violencia**: Proporción de denuncias respecto al total de la población
+* **Region**:	Las regiones en las que se divide el Perú: costa, sierra y selva
+* **Gasto_diezmilhab**:	Tasa de inversión en orden público y seguridad por cada 10.000 habitantes
+* **Corrupcion**:	Número de denuncias por corrupción
+* **Por_afil_sis**:	Porcentaje de habitantes afiliados al sis respecto al total de la población
+* **Por_elec**:	Porcentaje viviendas electrificadas respecto al total de la población
+* **Por_sec**:	Porcentaje de habitantes que asisten a secundaria respecto al total de la población
+* **Por_ayd**:	Porcentaje de viviendas con agua y desagüe respecto al total de la población
+* **Por_dninac**:	Porcentaje de habitantes afiliados al sis respecto al total de la población
+* **IDEfa**:	El puntaje que dio como resultado del análisis factorial de las variables que conforman el Índice de Densidad Estatal
+* **IDH**:	El puntaje de Índice de Desarrollo Humano calculado por la PNUD
+* **Esperanza_vida**:	Esperanza de vida al nacer medido en años
+* **secund_completa**:	Porcentaje de población con secundaria completa
+* **tiempo_educa**:	Total de años educativos de la población de 25 años a más
+* **percapitaf**:	Ingreso familiar per cápita
+* **IDHfa**: El puntaje que dio como resultado del análisis factorial de las variables que conformas el Índice de Densidad  Estatal
+
+
+
+
+#### **5.Análisis de Cluster**
+
+<a id='Cluster'></a> 
+
+Llevaremos a cabo una clusterización entre la variable dependiente y el Indice de Densidad Estatal. Realizaremos esta técnica con el objetivo de ver cuánto se parecen nuestros casos y cuánto se diferencian.
+
+
+1.- Generaremos un subset con las variables de interés:
+
+```{r}
+vide=total[c(1,9,18)]
+```
+
+2.- Pasaremos las provincias al ranking:
+```{r}
+row.names(vide)=vide$Provincia
+vide$Provincia=NULL
+
+head(vide)
+```
+
+
+3.- Solicitaremos los números de centroides según el número de regiones (costa, sierra y selva):
+```{r}
+vide_clus=kmeans(vide,centers=3)
+
+table(vide_clus$cluster)
+```
+
+4.- Ahora convertiremos el cluster en una data frame
+
+```{r}
+provinciaClus=as.data.frame(vide_clus$cluster)
+
+
+names(provinciaClus)='cluster'
+provinciaClus$NAME=row.names(provinciaClus)
+
+
+names(provinciaClus)=c("cluster","PROVINCIA")
+
+head(provinciaClus)
+```
+
+5.- Pasamos a realizar el mapa. El código de este mapa no se pudo colocar debido a que no hubiera sido replicable en otras computadoras. Por ello, a continuación se ha copiado la imagen y subido:
+```{r}
+library(jpeg)
+
+linkmapa="https://github.com/899c/est/raw/master/MAPA.jpg"
+
+download.file(linkmapa, 'linkmapa.jpg')
+
+mapa <- readJPEG("linkmapa.jpg",native=TRUE)
+plot(0:1,0:1,type="n",ann=FALSE,axes=FALSE)
+rasterImage(mapa,0,0,1,1)
+```
+
+El número 3 pertenece al color rojo, el número 2 pertenece al color amarillo y el número 1 pertenece al color naranja. Lo que podemos ver es que en aquellas zonas donde hay mayor violencia, hay mayor presencia del Estado (color rojo).
+
+
+6.- Ahora juntaremos el cluster creado con la tabla total.
+
+```{r}
+row.names(total)=total$Provincia
+total$Provincia=NULL
+
+
+total=merge(total,provinciaClus[-2], by=0)
+
+```
+
+Modificamos los nombres:
+```{r}
+names(total)=c("Provincia","Poblacion","por_scoredenun","por_homicidio","por_lesiones","por_extorsion","por_tentativa_homi","por_robo","Violencia","Region","Gasto_diezmilhab","Corrupcion","Por_afil_sis","Por_elec","Por_sec","Por_ayd","Por_dninac","IDEfa","IDH","Esperanza_vida","secund_completa","tiempo_educa","percapitaf","IDHfa","clusterVIDE")
+```
+
+
+#### **6.Análisis de regresión**
+
+<a id='regresion'></a> 
+
+Para poner a prueba las hipótesis realizaremos la regresión. La que se ha elegido es la regresión beta debido a que nuestra variable dependiente es una proporción. 
+
+1.- Creamos un subset con todas las variables que utilizaremos:
+
+```{r}
+betadata=total[c(9,11,12,18,19,24)]
+```
+
+2.- Realizamos la regresión:
+
+```{r}
+library(betareg)
+modelo=betareg(Violencia~Gasto_diezmilhab+Corrupcion+IDEfa+IDHfa,data=betadata)
+
+summary(modelo)
+```
+Por un lado, el resultado muestra que ni la inversión en orden público y seguridad por cada diez mil habitantes, ni la corrupción resultaron significativas. Por otro lado, el Indice de Densidad Estatal sí salió significativa al 99% de confianza y posee una dirección directa. Es decir, a mayor Indice de Densidad Estatal, mayor violencia.
+
+3.- Ahora veremos el efecto marginal que produce el Indice de Densidad Estatal en la variable que buscamos explicar.
+
+```{r}
+library(margins)
+
+(modeloM=margins(modelo))
+
+
+```
+
+Cuando el Indice de Densidad Estatal aumenta en una unidad, la probabilidad de que la violencia aumente es de 0.04%. En consecuencia, no hay un gran impacto en la variable dependiente.
+
+4.- Generaremos el summary para ver el intervalo de confianza:
+
+```{r}
+resultado=summary(modeloM)
+
+resultado
+```
+
+```{r}
+library(ggplot2)
+ggplot(resultado,aes(x=factor, y=AME)) + geom_point() + geom_errorbar(aes(ymin=lower, ymax=upper))
+```
+
+Tanto la inversión en orden público y seguridad por cada diez mil habitantes como la corrupción cruzan el cero; por tanto, no salieron significativas al momento de hacer la regresión. Asimismo el Índice de Densidad Estatal podría estar ubicado en una posición mayor respecto a a variable control e incluso llegar a tener mayor impacto; sin embargo, no se puede hacer una afirmación al respecto debido a que los intervalos se traslapan.
+
+####Prueba con IDH elaborado por PNUD
+
+Ahora realizaremos una regresión con el control de la  variable Indice de Desarrollo Humano elaborado por el PNUD con la finalidad de ver las diferencias:
+```{r}
+library(betareg)
+modeloPNUD=betareg(Violencia~Gasto_diezmilhab+Corrupcion+IDEfa+IDH,data=betadata)
+
+summary(modeloPNUD)
+```
+Tanto corrupción como la inversión en orden público y seguridad por cada diez mil habitantes siguen sin ser signficativas. En contraste al anterior modelo, el Indice de Densidad Estatal es significativo pero al 95%.
+
+Veamos los efectos marginales:
+```{r}
+library(margins)
+
+(modeloPNUDM=margins(modeloPNUD))
+```
+El impacto del Indice de Densidad Estatal se reduce mucho más: cuando el Indice de Densidad Estatal aumenta en una unidad, la probabilidad de que la violencia aumente es de 0.03%.
